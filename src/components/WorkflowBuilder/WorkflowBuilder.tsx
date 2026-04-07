@@ -11,6 +11,7 @@ import WorkflowCanvas from './WorkflowCanvas'
 import WorkflowToolbar from './WorkflowToolbar'
 import WorkflowList from './WorkflowList'
 import OptimizerPanel from './OptimizerPanel'
+import WorkflowSummary from './WorkflowSummary'
 import CreatePanel, { type CreatedEntity } from '../CreatePanel/CreatePanel'
 import { Layers, PanelLeftOpen, PanelLeftClose } from 'lucide-react'
 
@@ -27,6 +28,7 @@ export default function WorkflowBuilder({ allNodes, ecosystemData }: WorkflowBui
   const [showLeftPanel, setShowLeftPanel] = useState<'library' | 'workflows'>('library')
   const [leftCollapsed, setLeftCollapsed] = useState(false)
   const [showCreatePanel, setShowCreatePanel] = useState(false)
+  const [showSummary, setShowSummary] = useState(false)
 
   const activeWorkflow = workflows.find(w => w.id === activeId) || null
 
@@ -56,8 +58,16 @@ export default function WorkflowBuilder({ allNodes, ecosystemData }: WorkflowBui
 
   const handleSave = useCallback(() => {
     if (activeWorkflow) {
+      // Show summary before saving
+      setShowSummary(true)
+    }
+  }, [activeWorkflow])
+
+  const handleConfirmSave = useCallback(() => {
+    if (activeWorkflow) {
       saveWorkflow(activeWorkflow)
       setIsSaved(true)
+      setShowSummary(false)
     }
   }, [activeWorkflow])
 
@@ -295,6 +305,15 @@ export default function WorkflowBuilder({ allNodes, ecosystemData }: WorkflowBui
             />
           )}
         </div>
+
+        {/* Summary modal before save */}
+        {showSummary && activeWorkflow && (
+          <WorkflowSummary
+            workflow={activeWorkflow}
+            onConfirmSave={handleConfirmSave}
+            onCancel={() => setShowSummary(false)}
+          />
+        )}
       </div>
     </ReactFlowProvider>
   )
