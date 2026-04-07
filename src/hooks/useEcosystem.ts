@@ -63,9 +63,8 @@ export function useEcosystem() {
   const [isLive, setIsLive] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Load ecosystem data from the API (fallback to static JSON)
-  const loadData = useCallback(async (data?: EcosystemData) => {
-    const ecosystemData = data || rawData
+  // Apply ecosystem data to React Flow state
+  const applyData = useCallback((ecosystemData: EcosystemData) => {
     const flowNodes = toFlowNodes(ecosystemData.nodes)
     const flowEdges = toFlowEdges(ecosystemData.edges)
     const laid = computeLayout(flowNodes, flowEdges, 'LR')
@@ -73,7 +72,7 @@ export function useEcosystem() {
     setEdges(flowEdges)
     setRawData(ecosystemData)
     setIsLoading(false)
-  }, [rawData])
+  }, [])
 
   // Try to connect to the API on mount
   useEffect(() => {
@@ -85,18 +84,18 @@ export function useEcosystem() {
         if (cancelled) return
         setIsLive(true)
         setError(null)
-        loadData(data)
+        applyData(data)
       } catch {
         // Server not running — use static data
         if (cancelled) return
         setIsLive(false)
-        loadData(staticData as EcosystemData)
+        applyData(staticData as EcosystemData)
       }
     }
 
     init()
     return () => { cancelled = true }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [applyData])
 
   // Subscribe to SSE events for live updates
   useEffect(() => {
@@ -106,13 +105,13 @@ export function useEcosystem() {
       if (event === 'refresh' || event === 'node-updated' || event === 'node-created' || event === 'node-deleted' || event === 'saved' || event === 'restored') {
         try {
           const data = await fetchEcosystem()
-          loadData(data)
+          applyData(data)
         } catch {}
       }
     })
 
     return unsubscribe
-  }, [isLive, loadData])
+  }, [isLive, applyData])
 
   // Manual refresh
   const refresh = useCallback(async () => {
@@ -121,12 +120,12 @@ export function useEcosystem() {
       const data = await refreshEcosystem()
       setIsLive(true)
       setError(null)
-      loadData(data)
+      applyData(data)
     } catch (err) {
       setError((err as Error).message)
       setIsLoading(false)
     }
-  }, [loadData])
+  }, [applyData])
 
   const selectedNode = useMemo(() => {
     if (!selectedNodeId) return null

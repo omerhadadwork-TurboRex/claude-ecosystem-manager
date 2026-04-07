@@ -20,8 +20,7 @@ import {
 } from '../lib/ecosystem-store'
 import {
   saveEcosystem as apiSave,
-  createNode as apiCreateNode,
-  deleteNode as apiDeleteNode,
+  type EntityChange,
 } from '../lib/api-client'
 import EcosystemOptimizerPanel from './Optimizer/EcosystemOptimizerPanel'
 import ExportPanel from './ExportPanel/ExportPanel'
@@ -39,7 +38,26 @@ export default function App() {
   const [isSaving, setIsSaving] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const initialSnapshotRef = useRef<string>('')
+  const pendingChangesRef = useRef<EntityChange[]>([])
+  const [pendingCount, setPendingCount] = useState(0)
   const data = ecosystem.rawData
+
+  // Helper to queue a change for the next Save
+  const queueChange = useCallback((change: EntityChange) => {
+    // Remove any previous change for the same ID+action (latest wins)
+    pendingChangesRef.current = [
+      ...pendingChangesRef.current.filter(c => !(c.id === change.id && c.action === change.action)),
+      change,
+    ]
+    // If we delete something we previously created (in the same session), cancel both
+    if (change.action === 'delete') {
+      const wasCreated = pendingChangesRef.current.find(c => c.id === change.id && c.action === 'create')
+      if (wasCreated) {
+        pendingChangesRef.current = pendingChangesRef.current.filter(c => c.id !== change.id)
+      }
+    }
+    setPendingCount(pendingChangesRef.current.length)
+  }, [])
 
   // Validation
   const validationIssues = useMemo(() => validateEcosystem(data), [data])
@@ -114,13 +132,25 @@ export default function App() {
     saveCurrentState(ecosystem.nodes, ecosystem.edges)
     saveToHistory(ecosystem.nodes, ecosystem.edges)
 
-    // If server is live, also persist to files
-    if (ecosystem.isLive) {
+    // If server is live, flush pending changes to disk
+    if (ecosystem.isLive && pendingChangesRef.current.length > 0) {
+      const changes = [...pendingChangesRef.current]
       try {
-        await apiSave([]) // No entity changes for now — just graph state
+        const result = await apiSave(changes)
+        console.log(`Saved ${changes.length} changes to disk:`, result)
+        pendingChangesRef.current = []
+        setPendingCount(0)
       } catch (err) {
-        console.warn('API save failed, but localStorage saved:', err)
+        console.error('API save failed:', err)
+        alert(
+          `Failed to save ${changes.length} changes to disk.\n` +
+          `Changes are saved locally but NOT written to files.\n\n` +
+          `Error: ${(err as Error).message}`
+        )
       }
+    } else if (ecosystem.isLive) {
+      // No pending changes — just acknowledge
+      console.log('No pending changes to write to disk')
     }
 
     setHasUnsavedChanges(false)
@@ -173,20 +203,15 @@ export default function App() {
       metadata: entity.config,
     }
 
-    // If server is live, create the file on disk
-    if (ecosystem.isLive) {
-      try {
-        await apiCreateNode({
-          id: newNode.id,
-          label: newNode.label,
-          category: newNode.category,
-          description: newNode.description,
-          metadata: newNode.metadata,
-        })
-      } catch (err) {
-        console.warn('Failed to create on disk:', err)
-      }
-    }
+    // Queue create for next Save
+    queueChange({
+      action: 'create',
+      id: newNode.id,
+      label: newNode.label,
+      category: newNode.category,
+      description: newNode.description,
+      metadata: newNode.metadata,
+    })
 
     const newFlowNode = {
       id: newNode.id,
@@ -229,26 +254,30 @@ export default function App() {
           }
         : n
     ))
-  }, [ecosystem])
+
+    // Queue update for next Save
+    queueChange({
+      action: 'update',
+      id: nodeId,
+      category: newCategory,
+    })
+  }, [ecosystem, queueChange])
 
   // Delete node handler
-  const handleDeleteNode = useCallback(async (nodeId: string) => {
-    // If server is live, delete from disk too
-    if (ecosystem.isLive) {
-      try {
-        await apiDeleteNode(nodeId)
-      } catch (err) {
-        console.warn('Failed to delete from disk:', err)
-      }
-    }
-
+  const handleDeleteNode = useCallback((nodeId: string) => {
     ecosystem.setNodes(prev => prev.filter(n => n.id !== nodeId))
     ecosystem.setEdges(prev => prev.filter(e => e.source !== nodeId && e.target !== nodeId))
     if (ecosystem.selectedNodeId === nodeId) {
       ecosystem.setSelectedNodeId(null)
       setSidePanel(null)
     }
-  }, [ecosystem])
+
+    // Queue delete for next Save
+    queueChange({
+      action: 'delete',
+      id: nodeId,
+    })
+  }, [ecosystem, queueChange])
 
   // Search highlighting
   const displayNodes = useMemo(() => {
@@ -359,6 +388,8 @@ export default function App() {
               onShowExport={handleShowExport}
               isSaving={isSaving}
               hasUnsavedChanges={hasUnsavedChanges}
+              pendingCount={pendingCount}
+              isLive={ecosystem.isLive}
             />
 
             {/* Main area */}

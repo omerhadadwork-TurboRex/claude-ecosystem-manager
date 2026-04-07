@@ -19,6 +19,8 @@ interface ToolbarProps {
   onShowExport: () => void
   isSaving?: boolean
   hasUnsavedChanges?: boolean
+  pendingCount?: number
+  isLive?: boolean
 }
 
 const categories = Object.entries(CATEGORY_CONFIG) as [NodeCategory, typeof CATEGORY_CONFIG[NodeCategory]][]
@@ -38,6 +40,8 @@ export default function Toolbar({
   onShowExport,
   isSaving = false,
   hasUnsavedChanges = false,
+  pendingCount = 0,
+  isLive = false,
 }: ToolbarProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const errorCount = validationIssues.filter(i => i.severity === 'error').length
@@ -161,6 +165,11 @@ export default function Toolbar({
       >
         {isSaving ? <Check size={13} /> : <Save size={13} />}
         {isSaving ? 'Saved!' : 'Save'}
+        {pendingCount > 0 && !isSaving && isLive && (
+          <span className="ml-0.5 px-1.5 py-0.5 bg-white/20 rounded text-[9px] font-bold">
+            {pendingCount}
+          </span>
+        )}
         {hasUnsavedChanges && !isSaving && (
           <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
         )}
