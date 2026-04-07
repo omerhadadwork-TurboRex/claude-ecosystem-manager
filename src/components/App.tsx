@@ -236,6 +236,30 @@ export default function App() {
     setSidePanel('detail')
   }, [ecosystem])
 
+  // Update node (label, description)
+  const handleUpdateNode = useCallback((nodeId: string, updates: { label?: string; description?: string }) => {
+    // Update the React Flow node data
+    ecosystem.setNodes(prev => prev.map(n =>
+      n.id === nodeId
+        ? {
+            ...n,
+            data: {
+              ...n.data,
+              ...(updates.label ? { label: updates.label } : {}),
+              ...(updates.description !== undefined ? { description: updates.description } : {}),
+            },
+          }
+        : n
+    ))
+
+    // Queue update for next Save
+    queueChange({
+      action: 'update',
+      id: nodeId,
+      ...updates,
+    })
+  }, [ecosystem, queueChange])
+
   // Category change handler
   const handleCategoryChange = useCallback((nodeId: string, newCategory: string, newColor: string, newIcon: string) => {
     const categoryConfig = CATEGORY_CONFIG[newCategory as keyof typeof CATEGORY_CONFIG]
@@ -421,6 +445,7 @@ export default function App() {
                   onClose={handleClosePanel}
                   onCategoryChange={handleCategoryChange}
                   onDeleteNode={handleDeleteNode}
+                  onUpdateNode={handleUpdateNode}
                 />
               )}
               {sidePanel === 'validation' && (

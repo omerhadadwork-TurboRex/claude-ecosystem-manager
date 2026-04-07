@@ -3,7 +3,8 @@ import type { EcosystemNode, EcosystemEdge } from '../../lib/types'
 import { CATEGORY_CONFIG } from '../../lib/types'
 import {
   Bot, Puzzle, Cloud, FolderOpen, Plug, Zap, Clock, Rocket, Store, Circle,
-  X, ArrowRight, ArrowLeft, FileText, MapPin, ChevronDown, Trash2, AlertTriangle
+  X, ArrowRight, ArrowLeft, FileText, MapPin, ChevronDown, Trash2, AlertTriangle,
+  Pencil, Check, RotateCcw
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -29,12 +30,19 @@ interface DetailPanelProps {
   onClose: () => void
   onCategoryChange?: (nodeId: string, newCategory: string, newColor: string, newIcon: string) => void
   onDeleteNode?: (nodeId: string) => void
+  onUpdateNode?: (nodeId: string, updates: { label?: string; description?: string }) => void
 }
 
-export default function DetailPanel({ node, allEdges, allNodes, onClose, onCategoryChange, onDeleteNode }: DetailPanelProps) {
+export default function DetailPanel({ node, allEdges, allNodes, onClose, onCategoryChange, onDeleteNode, onUpdateNode }: DetailPanelProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showCategoryMenu, setShowCategoryMenu] = useState(false)
+  const [isEditingLabel, setIsEditingLabel] = useState(false)
+  const [isEditingDesc, setIsEditingDesc] = useState(false)
+  const [editLabel, setEditLabel] = useState('')
+  const [editDesc, setEditDesc] = useState('')
   const menuRef = useRef<HTMLDivElement>(null)
+  const labelInputRef = useRef<HTMLInputElement>(null)
+  const descInputRef = useRef<HTMLTextAreaElement>(null)
 
   // Close menu on outside click
   useEffect(() => {
@@ -48,11 +56,39 @@ export default function DetailPanel({ node, allEdges, allNodes, onClose, onCateg
     return () => document.removeEventListener('mousedown', handler)
   }, [showCategoryMenu])
 
-  // Reset menu when node changes
+  // Reset state when node changes
   useEffect(() => {
     setShowCategoryMenu(false)
     setShowDeleteConfirm(false)
-  }, [node?.id])
+    setIsEditingLabel(false)
+    setIsEditingDesc(false)
+    if (node) {
+      setEditLabel(node.label)
+      setEditDesc(node.description)
+    }
+  }, [node?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-focus when editing starts
+  useEffect(() => {
+    if (isEditingLabel) labelInputRef.current?.focus()
+  }, [isEditingLabel])
+  useEffect(() => {
+    if (isEditingDesc) descInputRef.current?.focus()
+  }, [isEditingDesc])
+
+  const handleSaveLabel = useCallback(() => {
+    if (node && onUpdateNode && editLabel.trim() && editLabel !== node.label) {
+      onUpdateNode(node.id, { label: editLabel.trim() })
+    }
+    setIsEditingLabel(false)
+  }, [node, editLabel, onUpdateNode])
+
+  const handleSaveDesc = useCallback(() => {
+    if (node && onUpdateNode && editDesc !== node.description) {
+      onUpdateNode(node.id, { description: editDesc })
+    }
+    setIsEditingDesc(false)
+  }, [node, editDesc, onUpdateNode])
 
   const handleSelectCategory = useCallback((cat: typeof CATEGORY_OPTIONS[number]) => {
     if (node && onCategoryChange) {
@@ -83,8 +119,43 @@ export default function DetailPanel({ node, allEdges, allNodes, onClose, onCateg
             >
               <IconComp size={18} style={{ color: config.color }} />
             </div>
-            <div>
-              <h3 className="text-sm font-bold text-gray-900">{node.label}</h3>
+            <div className="flex-1 min-w-0">
+              {/* Editable label */}
+              {isEditingLabel ? (
+                <div className="flex items-center gap-1">
+                  <input
+                    ref={labelInputRef}
+                    value={editLabel}
+                    onChange={e => setEditLabel(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') handleSaveLabel()
+                      if (e.key === 'Escape') { setEditLabel(node.label); setIsEditingLabel(false) }
+                    }}
+                    className="text-sm font-bold text-gray-900 border border-purple-300 rounded px-1.5 py-0.5 w-full
+                               outline-none focus:ring-2 focus:ring-purple-200"
+                  />
+                  <button onClick={handleSaveLabel} className="p-0.5 text-green-500 hover:text-green-600">
+                    <Check size={14} />
+                  </button>
+                  <button onClick={() => { setEditLabel(node.label); setIsEditingLabel(false) }}
+                    className="p-0.5 text-gray-400 hover:text-gray-600">
+                    <RotateCcw size={12} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 group/label">
+                  <h3 className="text-sm font-bold text-gray-900 truncate">{node.label}</h3>
+                  {onUpdateNode && (
+                    <button
+                      onClick={() => { setEditLabel(node.label); setIsEditingLabel(true) }}
+                      className="p-0.5 text-gray-300 hover:text-gray-500 opacity-0 group-hover/label:opacity-100 transition-opacity"
+                      title="Edit name"
+                    >
+                      <Pencil size={11} />
+                    </button>
+                  )}
+                </div>
+              )}
               {/* Clickable category badge with dropdown */}
               <div className="relative" ref={menuRef}>
                 <button
@@ -149,11 +220,58 @@ export default function DetailPanel({ node, allEdges, allNodes, onClose, onCateg
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         {/* Description */}
-        {node.description && (
-          <div className="px-4 py-3 border-b border-gray-50">
-            <p className="text-xs text-gray-600 leading-relaxed">{node.description}</p>
-          </div>
-        )}
+        <div className="px-4 py-3 border-b border-gray-50">
+          {isEditingDesc ? (
+            <div className="space-y-2">
+              <textarea
+                ref={descInputRef}
+                value={editDesc}
+                onChange={e => setEditDesc(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Escape') { setEditDesc(node.description); setIsEditingDesc(false) }
+                }}
+                rows={4}
+                className="w-full text-xs text-gray-600 leading-relaxed border border-purple-300 rounded-lg px-2.5 py-2
+                           outline-none focus:ring-2 focus:ring-purple-200 resize-y"
+              />
+              <div className="flex gap-1.5">
+                <button
+                  onClick={handleSaveDesc}
+                  className="flex items-center gap-1 px-2 py-1 text-[10px] font-semibold
+                             text-white bg-purple-500 hover:bg-purple-600 rounded-md transition-colors"
+                >
+                  <Check size={10} />
+                  Save
+                </button>
+                <button
+                  onClick={() => { setEditDesc(node.description); setIsEditingDesc(false) }}
+                  className="flex items-center gap-1 px-2 py-1 text-[10px] font-semibold
+                             text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="group/desc relative">
+              {node.description ? (
+                <p className="text-xs text-gray-600 leading-relaxed pr-6">{node.description}</p>
+              ) : (
+                <p className="text-xs text-gray-400 italic pr-6">No description</p>
+              )}
+              {onUpdateNode && (
+                <button
+                  onClick={() => { setEditDesc(node.description); setIsEditingDesc(true) }}
+                  className="absolute top-0 right-0 p-1 text-gray-300 hover:text-gray-500
+                             opacity-0 group-hover/desc:opacity-100 transition-opacity"
+                  title="Edit description"
+                >
+                  <Pencil size={11} />
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* File path */}
         <div className="px-4 py-2.5 border-b border-gray-50 flex items-center gap-2">

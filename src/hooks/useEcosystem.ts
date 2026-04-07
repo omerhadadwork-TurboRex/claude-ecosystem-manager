@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import type { Node, Edge } from '@xyflow/react'
 import type { EcosystemData, EcosystemNode, EcosystemEdge, NodeCategory } from '../lib/types'
 import { CATEGORY_CONFIG } from '../lib/types'
@@ -98,6 +98,9 @@ export function useEcosystem() {
   }, [applyData])
 
   // Subscribe to SSE events for live updates
+  const applyDataRef = useRef(applyData)
+  applyDataRef.current = applyData
+
   useEffect(() => {
     if (!isLive) return
 
@@ -105,13 +108,13 @@ export function useEcosystem() {
       if (event === 'refresh' || event === 'node-updated' || event === 'node-created' || event === 'node-deleted' || event === 'saved' || event === 'restored') {
         try {
           const data = await fetchEcosystem()
-          applyData(data)
+          applyDataRef.current(data)
         } catch {}
       }
     })
 
     return unsubscribe
-  }, [isLive, applyData])
+  }, [isLive])
 
   // Manual refresh
   const refresh = useCallback(async () => {
