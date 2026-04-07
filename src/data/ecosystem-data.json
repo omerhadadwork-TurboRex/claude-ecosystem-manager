@@ -1,0 +1,767 @@
+{
+  "nodes": [
+    {
+      "id": "skill:brainstorming",
+      "label": "brainstorming",
+      "category": "skill-local",
+      "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.",
+      "filePath": "~/.claude/skills/brainstorming/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:dispatching-parallel-agents",
+      "label": "dispatching-parallel-agents",
+      "category": "skill-local",
+      "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
+      "filePath": "~/.claude/skills/dispatching-parallel-agents/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:executing-plans",
+      "label": "executing-plans",
+      "category": "skill-local",
+      "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints",
+      "filePath": "~/.claude/skills/executing-plans/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:finishing-a-development-branch",
+      "label": "finishing-a-development-branch",
+      "category": "skill-local",
+      "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup",
+      "filePath": "~/.claude/skills/finishing-a-development-branch/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:n8n-orchestrator",
+      "label": "n8n-orchestrator",
+      "category": "skill-local",
+      "description": "Use when the user mentions n8n, automation workflows, workflow JSON, integrations, webhook handling, or asks to build, fix, review, or improve any automation pipeline — even if they don't explicitly say \"n8n\". Also trigger when comparing automation platforms or deciding whether n8n is the right tool.",
+      "filePath": "~/.claude/skills/n8n-orchestrator/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:receiving-code-review",
+      "label": "receiving-code-review",
+      "category": "skill-local",
+      "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation",
+      "filePath": "~/.claude/skills/receiving-code-review/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:requesting-code-review",
+      "label": "requesting-code-review",
+      "category": "skill-local",
+      "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements",
+      "filePath": "~/.claude/skills/requesting-code-review/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:subagent-driven-development",
+      "label": "subagent-driven-development",
+      "category": "skill-local",
+      "description": "Use when executing implementation plans with independent tasks in the current session",
+      "filePath": "~/.claude/skills/subagent-driven-development/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:systematic-debugging",
+      "label": "systematic-debugging",
+      "category": "skill-local",
+      "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
+      "filePath": "~/.claude/skills/systematic-debugging/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:test-driven-development",
+      "label": "test-driven-development",
+      "category": "skill-local",
+      "description": "Use when implementing any feature or bugfix, before writing implementation code",
+      "filePath": "~/.claude/skills/test-driven-development/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:using-git-worktrees",
+      "label": "using-git-worktrees",
+      "category": "skill-local",
+      "description": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification",
+      "filePath": "~/.claude/skills/using-git-worktrees/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:using-superpowers",
+      "label": "using-superpowers",
+      "category": "skill-local",
+      "description": "Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions",
+      "filePath": "~/.claude/skills/using-superpowers/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:verification-before-completion",
+      "label": "verification-before-completion",
+      "category": "skill-local",
+      "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always",
+      "filePath": "~/.claude/skills/verification-before-completion/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:writing-plans",
+      "label": "writing-plans",
+      "category": "skill-local",
+      "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
+      "filePath": "~/.claude/skills/writing-plans/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "skill:writing-skills",
+      "label": "writing-skills",
+      "category": "skill-local",
+      "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment",
+      "filePath": "~/.claude/skills/writing-skills/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "agent:automation-manager",
+      "label": "automation-architect",
+      "category": "agent",
+      "description": "Automation Architect Agent for n8n, Power Automate, and Zapier. Use for building, debugging, securing, optimizing, and productizing automation workflows across any platform. Trigger when the user wants to build, fix, review, optimize, or productize any automation — or when comparing platforms and selecting the right tool.",
+      "filePath": "~/.claude/agents/automation-manager/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "marketplace:claude-plugins-official",
+      "label": "claude-plugins-official",
+      "category": "marketplace",
+      "description": "Plugin marketplace: claude-plugins-official",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official",
+      "metadata": {}
+    },
+    {
+      "id": "plugin:asana",
+      "label": "asana",
+      "category": "plugin",
+      "description": "Plugin: asana",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/asana",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:context7",
+      "label": "context7",
+      "category": "plugin",
+      "description": "Plugin: context7",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/context7",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:discord",
+      "label": "discord",
+      "category": "plugin",
+      "description": "Plugin: discord",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/discord",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:fakechat",
+      "label": "fakechat",
+      "category": "plugin",
+      "description": "Plugin: fakechat",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/fakechat",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:firebase",
+      "label": "firebase",
+      "category": "plugin",
+      "description": "Plugin: firebase",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/firebase",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:github",
+      "label": "github",
+      "category": "plugin",
+      "description": "Plugin: github",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/github",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:gitlab",
+      "label": "gitlab",
+      "category": "plugin",
+      "description": "Plugin: gitlab",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/gitlab",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:greptile",
+      "label": "greptile",
+      "category": "plugin",
+      "description": "Plugin: greptile",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/greptile",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:imessage",
+      "label": "imessage",
+      "category": "plugin",
+      "description": "Plugin: imessage",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/imessage",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:laravel-boost",
+      "label": "laravel-boost",
+      "category": "plugin",
+      "description": "Plugin: laravel-boost",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/laravel-boost",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:linear",
+      "label": "linear",
+      "category": "plugin",
+      "description": "Plugin: linear",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/linear",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:playwright",
+      "label": "playwright",
+      "category": "plugin",
+      "description": "Plugin: playwright",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/playwright",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:serena",
+      "label": "serena",
+      "category": "plugin",
+      "description": "Plugin: serena",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/serena",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:slack",
+      "label": "slack",
+      "category": "plugin",
+      "description": "Plugin: slack",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/slack",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:supabase",
+      "label": "supabase",
+      "category": "plugin",
+      "description": "Plugin: supabase",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/supabase",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:telegram",
+      "label": "telegram",
+      "category": "plugin",
+      "description": "Plugin: telegram",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/telegram",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "plugin:terraform",
+      "label": "terraform",
+      "category": "plugin",
+      "description": "Plugin: terraform",
+      "filePath": "~/.claude/plugins/marketplaces/claude-plugins-official/external_plugins/terraform",
+      "metadata": {
+        "marketplace": "claude-plugins-official"
+      }
+    },
+    {
+      "id": "marketplace:everything-claude-code",
+      "label": "everything-claude-code",
+      "category": "marketplace",
+      "description": "Plugin marketplace: everything-claude-code",
+      "filePath": "~/.claude/plugins/marketplaces/everything-claude-code",
+      "metadata": {}
+    },
+    {
+      "id": "hook:stop",
+      "label": "Stop Hook",
+      "category": "hook",
+      "description": "Hook triggered on Stop event",
+      "filePath": "~/.claude/settings.json",
+      "metadata": {
+        "event": "Stop"
+      }
+    },
+    {
+      "id": "launch:therapy-pipeline",
+      "label": "therapy-pipeline",
+      "category": "launch-config",
+      "description": "C:\\Program Files\\nodejs\\node.exe server on port 8000",
+      "filePath": "~/.claude/launch.json",
+      "metadata": {
+        "port": 8000,
+        "runtime": "C:\\Program Files\\nodejs\\node.exe"
+      }
+    },
+    {
+      "id": "scheduled:weekly-ai-digest",
+      "label": "weekly-ai-digest",
+      "category": "scheduled-task",
+      "description": "Weekly AI & automation digest email every Thursday at 10:00 AM",
+      "filePath": "~/.claude/scheduled-tasks/weekly-ai-digest/SKILL.md",
+      "metadata": {}
+    },
+    {
+      "id": "project:banner-design",
+      "label": "banner-design",
+      "category": "skill-project",
+      "description": "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with AI-generated visuals. Actions: design, create, generate banner. Platforms: Facebook, Twitter/X, LinkedIn, YouTube, Instagram, Google Display, website hero, print. Styles: minimalist, gradient, bold typography, photo-based, illustrated, geometric, retro, glassmorphism, 3D, neon, duotone, editorial, collage. Uses ui-ux-pro-max, frontend-design, ai-artist, ai-multimodal skills. (my-agency-ops)",
+      "filePath": "~/Projects/my-agency-ops/.claude/skills/banner-design/SKILL.md",
+      "metadata": {
+        "project": "my-agency-ops",
+        "author": "claudekit",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "project:brand",
+      "label": "brand",
+      "category": "skill-project",
+      "description": "Brand voice, visual identity, messaging frameworks, asset management, brand consistency. Activate for branded content, tone of voice, marketing assets, brand compliance, style guides. (my-agency-ops)",
+      "filePath": "~/Projects/my-agency-ops/.claude/skills/brand/SKILL.md",
+      "metadata": {
+        "project": "my-agency-ops",
+        "author": "claudekit",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "project:design",
+      "label": "design",
+      "category": "skill-project",
+      "description": "Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini AI), corporate identity program (50 deliverables, CIP mockups), HTML presentations (Chart.js), banner design (22 styles, social/ads/web/print), icon design (15 styles, SVG, Gemini 3.1 Pro), social photos (HTML→screenshot, multi-platform). Actions: design logo, create CIP, generate mockups, build slides, design banner, generate icon, create social photos, social media images, brand identity, design system. Platforms: Facebook, Twitter, LinkedIn, YouTube, Instagram, Pinterest, TikTok, Threads, Google Ads. (my-agency-ops)",
+      "filePath": "~/Projects/my-agency-ops/.claude/skills/design/SKILL.md",
+      "metadata": {
+        "project": "my-agency-ops",
+        "author": "claudekit",
+        "version": "2.1.0"
+      }
+    },
+    {
+      "id": "project:design-system",
+      "label": "design-system",
+      "category": "skill-project",
+      "description": "Token architecture, component specifications, and slide generation. Three-layer tokens (primitive→semantic→component), CSS variables, spacing/typography scales, component specs, strategic slide creation. Use for design tokens, systematic design, brand-compliant presentations. (my-agency-ops)",
+      "filePath": "~/Projects/my-agency-ops/.claude/skills/design-system/SKILL.md",
+      "metadata": {
+        "project": "my-agency-ops",
+        "author": "claudekit",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "project:slides",
+      "label": "slides",
+      "category": "skill-project",
+      "description": "Create strategic HTML presentations with Chart.js, design tokens, responsive layouts, copywriting formulas, and contextual slide strategies. (my-agency-ops)",
+      "filePath": "~/Projects/my-agency-ops/.claude/skills/slides/SKILL.md",
+      "metadata": {
+        "project": "my-agency-ops",
+        "author": "claudekit",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "project:ui-styling",
+      "label": "ui-styling",
+      "category": "skill-project",
+      "description": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across applications. (my-agency-ops)",
+      "filePath": "~/Projects/my-agency-ops/.claude/skills/ui-styling/SKILL.md",
+      "metadata": {
+        "project": "my-agency-ops",
+        "author": "claudekit",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "project:ui-ux-pro-max",
+      "label": "ui-ux-pro-max",
+      "category": "skill-project",
+      "description": "UI/UX design intelligence for web and mobile. Includes 50+ styles, 161 color palettes, 57 font pairings, 161 product types, 99 UX guidelines, and 25 chart types across 10 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, and HTML/CSS). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, and check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, and mobile app. Elements: button, modal, navbar, sidebar, card, table, form, and chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, and flat design. Topics: color systems, accessibility, animation, layout, typography, font pairing, spacing, interaction states, shadow, and gradient. Integrations: shadcn/ui MCP for component search and examples. (my-agency-ops)",
+      "filePath": "~/Projects/my-agency-ops/.claude/skills/ui-ux-pro-max/SKILL.md",
+      "metadata": {
+        "project": "my-agency-ops"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:asana",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e2",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:context7",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e3",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:discord",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e4",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:fakechat",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e5",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:firebase",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e6",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:github",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e7",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:gitlab",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e8",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:greptile",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e9",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:imessage",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e10",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:laravel-boost",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e11",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:linear",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e12",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:playwright",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e13",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:serena",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e14",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:slack",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e15",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:supabase",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e16",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:telegram",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e17",
+      "source": "marketplace:claude-plugins-official",
+      "target": "plugin:terraform",
+      "relation": "provides-tools"
+    },
+    {
+      "id": "e18",
+      "source": "skill:brainstorming",
+      "target": "skill:writing-plans",
+      "relation": "invokes"
+    },
+    {
+      "id": "e19",
+      "source": "skill:brainstorming",
+      "target": "project:design",
+      "relation": "invokes"
+    },
+    {
+      "id": "e20",
+      "source": "skill:executing-plans",
+      "target": "skill:finishing-a-development-branch",
+      "relation": "invokes"
+    },
+    {
+      "id": "e21",
+      "source": "skill:executing-plans",
+      "target": "skill:subagent-driven-development",
+      "relation": "invokes"
+    },
+    {
+      "id": "e22",
+      "source": "skill:executing-plans",
+      "target": "skill:using-git-worktrees",
+      "relation": "invokes"
+    },
+    {
+      "id": "e23",
+      "source": "skill:executing-plans",
+      "target": "skill:writing-plans",
+      "relation": "invokes"
+    },
+    {
+      "id": "e24",
+      "source": "skill:finishing-a-development-branch",
+      "target": "skill:executing-plans",
+      "relation": "invokes"
+    },
+    {
+      "id": "e25",
+      "source": "skill:finishing-a-development-branch",
+      "target": "skill:subagent-driven-development",
+      "relation": "invokes"
+    },
+    {
+      "id": "e26",
+      "source": "skill:finishing-a-development-branch",
+      "target": "skill:using-git-worktrees",
+      "relation": "invokes"
+    },
+    {
+      "id": "e27",
+      "source": "skill:n8n-orchestrator",
+      "target": "project:design",
+      "relation": "invokes"
+    },
+    {
+      "id": "e28",
+      "source": "skill:receiving-code-review",
+      "target": "plugin:github",
+      "relation": "invokes"
+    },
+    {
+      "id": "e29",
+      "source": "skill:subagent-driven-development",
+      "target": "skill:executing-plans",
+      "relation": "invokes"
+    },
+    {
+      "id": "e30",
+      "source": "skill:subagent-driven-development",
+      "target": "skill:finishing-a-development-branch",
+      "relation": "invokes"
+    },
+    {
+      "id": "e31",
+      "source": "skill:subagent-driven-development",
+      "target": "skill:requesting-code-review",
+      "relation": "invokes"
+    },
+    {
+      "id": "e32",
+      "source": "skill:subagent-driven-development",
+      "target": "skill:test-driven-development",
+      "relation": "invokes"
+    },
+    {
+      "id": "e33",
+      "source": "skill:subagent-driven-development",
+      "target": "skill:using-git-worktrees",
+      "relation": "invokes"
+    },
+    {
+      "id": "e34",
+      "source": "skill:subagent-driven-development",
+      "target": "skill:writing-plans",
+      "relation": "invokes"
+    },
+    {
+      "id": "e35",
+      "source": "skill:subagent-driven-development",
+      "target": "project:design",
+      "relation": "depends-on"
+    },
+    {
+      "id": "e36",
+      "source": "skill:systematic-debugging",
+      "target": "skill:test-driven-development",
+      "relation": "invokes"
+    },
+    {
+      "id": "e37",
+      "source": "skill:systematic-debugging",
+      "target": "skill:verification-before-completion",
+      "relation": "invokes"
+    },
+    {
+      "id": "e38",
+      "source": "skill:systematic-debugging",
+      "target": "project:design",
+      "relation": "invokes"
+    },
+    {
+      "id": "e39",
+      "source": "skill:test-driven-development",
+      "target": "plugin:linear",
+      "relation": "invokes"
+    },
+    {
+      "id": "e40",
+      "source": "skill:test-driven-development",
+      "target": "project:design",
+      "relation": "invokes"
+    },
+    {
+      "id": "e41",
+      "source": "skill:using-git-worktrees",
+      "target": "skill:brainstorming",
+      "relation": "invokes"
+    },
+    {
+      "id": "e42",
+      "source": "skill:using-git-worktrees",
+      "target": "skill:executing-plans",
+      "relation": "invokes"
+    },
+    {
+      "id": "e43",
+      "source": "skill:using-git-worktrees",
+      "target": "skill:finishing-a-development-branch",
+      "relation": "invokes"
+    },
+    {
+      "id": "e44",
+      "source": "skill:using-git-worktrees",
+      "target": "skill:subagent-driven-development",
+      "relation": "invokes"
+    },
+    {
+      "id": "e45",
+      "source": "skill:using-git-worktrees",
+      "target": "project:design",
+      "relation": "invokes"
+    },
+    {
+      "id": "e46",
+      "source": "skill:using-superpowers",
+      "target": "skill:brainstorming",
+      "relation": "invokes"
+    },
+    {
+      "id": "e47",
+      "source": "skill:using-superpowers",
+      "target": "project:design",
+      "relation": "invokes"
+    },
+    {
+      "id": "e48",
+      "source": "skill:writing-plans",
+      "target": "skill:brainstorming",
+      "relation": "invokes"
+    },
+    {
+      "id": "e49",
+      "source": "skill:writing-plans",
+      "target": "skill:executing-plans",
+      "relation": "invokes"
+    },
+    {
+      "id": "e50",
+      "source": "skill:writing-plans",
+      "target": "skill:subagent-driven-development",
+      "relation": "invokes"
+    },
+    {
+      "id": "e51",
+      "source": "skill:writing-plans",
+      "target": "project:design",
+      "relation": "invokes"
+    },
+    {
+      "id": "e52",
+      "source": "skill:writing-skills",
+      "target": "skill:systematic-debugging",
+      "relation": "invokes"
+    },
+    {
+      "id": "e53",
+      "source": "skill:writing-skills",
+      "target": "skill:test-driven-development",
+      "relation": "invokes"
+    },
+    {
+      "id": "e54",
+      "source": "skill:writing-skills",
+      "target": "skill:verification-before-completion",
+      "relation": "invokes"
+    },
+    {
+      "id": "e55",
+      "source": "skill:writing-skills",
+      "target": "plugin:linear",
+      "relation": "invokes"
+    },
+    {
+      "id": "e56",
+      "source": "skill:writing-skills",
+      "target": "project:design",
+      "relation": "invokes"
+    }
+  ]
+}

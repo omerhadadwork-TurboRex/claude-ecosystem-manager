@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npx tsx:*)",
+      "Bash(npx tsc:*)",
+      "Bash(xcopy \"C:\\\\Users\\\\Omer\\\\Documents\\\\Claude\\\\Projects\\\\ux ui claude structure\" \"C:\\\\Users\\\\Omer\\\\Desktop\\\\ux ui claude structure\" \" /E /I /H /Y /Q)",
+      "Bash(robocopy \"C:\\\\Users\\\\Omer\\\\Documents\\\\Claude\\\\Projects\\\\ux ui claude structure\" \"C:\\\\Users\\\\Omer\\\\Desktop\\\\ux ui claude structure\" /E /MIR /XD node_modules .git /NFL /NDL /NJH /NJS)",
+      "Bash(robocopy \"C:\\\\Users\\\\Omer\\\\Documents\\\\Claude\\\\Projects\\\\ux ui claude structure\" \"C:\\\\Users\\\\Omer\\\\Desktop\\\\ux ui claude structure\" /E /XD node_modules .git)",
+      "Bash(robocopy \"C:\\\\Users\\\\Omer\\\\Documents\\\\Claude\\\\Projects\\\\ux ui claude structure\" \"C:\\\\Users\\\\Omer\\\\Desktop\\\\ux-ui-claude-structure\" /E /XD node_modules .git)",
+      "Bash(powershell -Command \"Copy-Item -Path ''C:\\\\Users\\\\Omer\\\\Documents\\\\Claude\\\\Projects\\\\ux ui claude structure'' -Destination ''C:\\\\Users\\\\Omer\\\\Desktop\\\\ux-ui-claude-structure'' -Recurse -Exclude @\\(''node_modules'',''.git''\\) -Force\")",
+      "Bash(powershell -Command \"Remove-Item -Path ''C:\\\\Users\\\\Omer\\\\Desktop\\\\ux-ui-claude-structure\\\\node_modules'' -Recurse -Force -ErrorAction SilentlyContinue\")",
+      "Bash(find 'C:\\\\Users\\\\Omer\\\\Documents\\\\Claude\\\\Projects\\\\ux ui claude structure' -not -path */node_modules/* -type d)",
+      "Bash(mkdir -p server/routes)",
+      "Bash(mkdir -p bin)",
+      "Bash(curl -s http://localhost:3847/api/ecosystem)",
+      "Bash(taskkill /f /im node.exe)",
+      "Bash(curl -s http://localhost:5175)"
+    ]
+  }
+}

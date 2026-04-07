@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  --color-agent: #9333ea;
+  --color-skill-local: #10b981;
+  --color-skill-remote: #14b8a6;
+  --color-skill-project: #f59e0b;
+  --color-plugin: #3b82f6;
+  --color-hook: #f97316;
+  --color-scheduled: #f43f5e;
+  --color-launch: #64748b;
+  --color-marketplace: #6366f1;
+  --color-canvas-bg: #f8f9fa;
+  --color-canvas-dots: #e0e0e0;
+  --color-panel-bg: #ffffff;
+  --color-sidebar-bg: #fafafa;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--color-canvas-bg);
+}
+
+/* React Flow overrides for n8n-style canvas */
+.react-flow__background {
+  background-color: var(--color-canvas-bg) !important;
+}
+
+.react-flow__minimap {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.react-flow__controls {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.react-flow__controls button {
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+.react-flow__connection-line {
+  stroke: #9333ea;
+  stroke-width: 2;
+}
+
+/* Workflow builder canvas overrides */
+.workflow-canvas .react-flow__connection-line {
+  stroke: #6366f1;
+  stroke-width: 2;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Drag ghost styling */
+[draggable="true"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Animated dashed edge */
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -9;
+  }
+}
+
+/* Make edges easier to select */
+.react-flow__edge {
+  cursor: pointer;
+}
+
+.react-flow__edge-interaction {
+  stroke-width: 20px !important;
+}
