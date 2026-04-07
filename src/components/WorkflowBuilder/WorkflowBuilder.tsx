@@ -63,12 +63,33 @@ export default function WorkflowBuilder({ allNodes, ecosystemData }: WorkflowBui
     }
   }, [activeWorkflow])
 
-  const handleConfirmSave = useCallback(() => {
-    if (activeWorkflow) {
-      saveWorkflow(activeWorkflow)
-      setIsSaved(true)
-      setShowSummary(false)
+  const handleConfirmSave = useCallback((addedSteps: { node: { id: string; label: string; category: string; description: string }; reason: string }[]) => {
+    if (!activeWorkflow) return
+
+    let wf = activeWorkflow
+
+    // Add any selected suggestions to the workflow
+    if (addedSteps.length > 0) {
+      const newSteps = addedSteps.map((s, i) => {
+        const config = CATEGORY_CONFIG[s.node.category as keyof typeof CATEGORY_CONFIG]
+        return {
+          id: `step-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 5)}`,
+          entityId: s.node.id,
+          label: s.node.label,
+          category: s.node.category,
+          description: s.node.description,
+          color: config?.color || '#666',
+          iconName: config?.icon || 'Circle',
+          config: { _position: { x: 100 + (wf.steps.length + i) * 260, y: 150 } },
+        }
+      })
+      wf = { ...wf, steps: [...wf.steps, ...newSteps] }
+      setWorkflows(prev => prev.map(w => w.id === wf.id ? wf : w))
     }
+
+    saveWorkflow(wf)
+    setIsSaved(true)
+    setShowSummary(false)
   }, [activeWorkflow])
 
   const handleDragStart = useCallback((_item: DragItem) => {
@@ -310,6 +331,8 @@ export default function WorkflowBuilder({ allNodes, ecosystemData }: WorkflowBui
         {showSummary && activeWorkflow && (
           <WorkflowSummary
             workflow={activeWorkflow}
+            allNodes={allNodes}
+            allEdges={ecosystemData.edges}
             onConfirmSave={handleConfirmSave}
             onCancel={() => setShowSummary(false)}
           />
