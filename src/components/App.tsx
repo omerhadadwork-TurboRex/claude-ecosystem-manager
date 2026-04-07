@@ -20,12 +20,16 @@ import {
 } from '../lib/ecosystem-store'
 import {
   saveEcosystem as apiSave,
+  createNode as apiCreateNode,
+  deleteNode as apiDeleteNode,
   type EntityChange,
 } from '../lib/api-client'
 import EcosystemOptimizerPanel from './Optimizer/EcosystemOptimizerPanel'
 import ExportPanel from './ExportPanel/ExportPanel'
+import EnvironmentSwitcher from './EnvironmentSwitcher/EnvironmentSwitcher'
+import type { EnvType } from '../lib/api-client'
 import {
-  Network, Workflow, Layers, Wifi, WifiOff, Loader2
+  Network, Workflow, Layers, Wifi, WifiOff, Loader2, FlaskConical
 } from 'lucide-react'
 
 type AppView = 'ecosystem' | 'workflow'
@@ -37,6 +41,7 @@ export default function App() {
   const [sidePanel, setSidePanel] = useState<SidePanel>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [currentEnv, setCurrentEnv] = useState<EnvType>('prod')
   const initialSnapshotRef = useRef<string>('')
   const pendingChangesRef = useRef<EntityChange[]>([])
   const [pendingCount, setPendingCount] = useState(0)
@@ -95,6 +100,12 @@ export default function App() {
   const handleShowExport = useCallback(() => {
     setSidePanel(prev => prev === 'export' ? null : 'export')
   }, [])
+
+  const handleEnvChange = useCallback(async (env: EnvType) => {
+    setCurrentEnv(env)
+    // Re-fetch ecosystem data for the new environment
+    await ecosystem.refresh()
+  }, [ecosystem])
 
   const handleSync = useCallback(async () => {
     if (ecosystem.isLive) {
@@ -203,15 +214,32 @@ export default function App() {
       metadata: entity.config,
     }
 
-    // Queue create for next Save
-    queueChange({
-      action: 'create',
-      id: newNode.id,
-      label: newNode.label,
-      category: newNode.category,
-      description: newNode.description,
-      metadata: newNode.metadata,
-    })
+    // Write to disk immediately when server is live (don't wait for Save)
+    if (ecosystem.isLive) {
+      try {
+        await apiCreateNode({
+          id: newNode.id,
+          label: newNode.label,
+          category: newNode.category,
+          description: newNode.description,
+          metadata: newNode.metadata as Record<string, unknown>,
+        })
+        console.log(`✅ Created ${newNode.id} on disk`)
+      } catch (err) {
+        console.error(`Failed to create ${newNode.id} on disk:`, err)
+        alert(`Created in canvas but failed to write to disk: ${(err as Error).message}`)
+      }
+    } else {
+      // Offline mode — queue for later
+      queueChange({
+        action: 'create',
+        id: newNode.id,
+        label: newNode.label,
+        category: newNode.category,
+        description: newNode.description,
+        metadata: newNode.metadata as Record<string, unknown>,
+      })
+    }
 
     const newFlowNode = {
       id: newNode.id,
@@ -231,10 +259,14 @@ export default function App() {
       selected: true,
     }
 
-    ecosystem.setNodes(prev => [...prev, newFlowNode])
+    ecosystem.setNodes(prev => {
+      // Avoid duplicate if SSE already brought it in
+      if (prev.some(n => n.id === newFlowNode.id)) return prev
+      return [...prev, newFlowNode]
+    })
     ecosystem.setSelectedNodeId(newNode.id)
     setSidePanel('detail')
-  }, [ecosystem])
+  }, [ecosystem, queueChange])
 
   // Update node (label, description)
   const handleUpdateNode = useCallback((nodeId: string, updates: { label?: string; description?: string }) => {
@@ -288,7 +320,7 @@ export default function App() {
   }, [ecosystem, queueChange])
 
   // Delete node handler
-  const handleDeleteNode = useCallback((nodeId: string) => {
+  const handleDeleteNode = useCallback(async (nodeId: string) => {
     ecosystem.setNodes(prev => prev.filter(n => n.id !== nodeId))
     ecosystem.setEdges(prev => prev.filter(e => e.source !== nodeId && e.target !== nodeId))
     if (ecosystem.selectedNodeId === nodeId) {
@@ -296,11 +328,20 @@ export default function App() {
       setSidePanel(null)
     }
 
-    // Queue delete for next Save
-    queueChange({
-      action: 'delete',
-      id: nodeId,
-    })
+    // Delete from disk immediately when live
+    if (ecosystem.isLive) {
+      try {
+        await apiDeleteNode(nodeId)
+        console.log(`🗑️ Deleted ${nodeId} from disk`)
+      } catch (err) {
+        console.error(`Failed to delete ${nodeId} from disk:`, err)
+      }
+    } else {
+      queueChange({
+        action: 'delete',
+        id: nodeId,
+      })
+    }
   }, [ecosystem, queueChange])
 
   // Search highlighting
@@ -376,14 +417,27 @@ export default function App() {
 
         {/* Right side info */}
         <div className="ml-auto flex items-center gap-3 text-[10px] text-gray-400">
+          {/* Environment switcher */}
+          <EnvironmentSwitcher
+            isLive={ecosystem.isLive}
+            onEnvChange={handleEnvChange}
+          />
+
           {/* Live/Offline indicator */}
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
             ecosystem.isLive
-              ? 'bg-green-50 text-green-600'
+              ? currentEnv === 'test'
+                ? 'bg-amber-50 text-amber-600'
+                : 'bg-green-50 text-green-600'
               : 'bg-gray-100 text-gray-500'
           }`}>
             {ecosystem.isLive ? <Wifi size={10} /> : <WifiOff size={10} />}
-            <span className="font-medium">{ecosystem.isLive ? 'Live' : 'Offline'}</span>
+            <span className="font-medium">
+              {ecosystem.isLive
+                ? currentEnv === 'test' ? 'Sandbox' : 'Live'
+                : 'Offline'
+              }
+            </span>
           </div>
           <Layers size={10} />
           <span>{data.nodes.length} entities</span>
@@ -391,6 +445,14 @@ export default function App() {
           <span>{data.edges.length} connections</span>
         </div>
       </div>
+
+      {/* ── Sandbox Banner ───────────────────────────────────── */}
+      {currentEnv === 'test' && (
+        <div className="flex items-center justify-center gap-2 px-4 py-1.5 bg-amber-400 text-amber-900 text-[11px] font-semibold">
+          <FlaskConical size={12} />
+          SANDBOX MODE — Changes will not affect your real ~/.claude/ files
+        </div>
+      )}
 
       {/* ── View Content ───────────────────────────────────────── */}
       {activeView === 'ecosystem' ? (

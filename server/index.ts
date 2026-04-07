@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 import { scanEcosystem } from './scanner.js'
 import { createBackup, listBackups, restoreBackup } from './backup.js'
 import { updateSkillFile, createEntity, deleteEntity } from './writer.js'
+import { initSandbox, resetSandbox, promoteSandbox, sandboxExists, getSandboxDir } from './sandbox.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -25,6 +26,13 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
   const app = express()
 
   app.use(express.json({ limit: '10mb' }))
+
+  // ── Environment state ─────────────────────────────────────
+  let activeEnv: 'prod' | 'test' = 'prod'
+
+  function getActiveDir(): string {
+    return activeEnv === 'test' ? getSandboxDir(claudeDir) : claudeDir
+  }
 
   // ── SSE for live updates ─────────────────────────────────
   const sseClients = new Set<express.Response>()
@@ -46,16 +54,125 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
     }
   }
 
+  // ── File watcher — detect external changes to ~/.claude/ ──
+  let fsDebounceTimer: ReturnType<typeof setTimeout> | null = null
+  let selfWriting = false
+
+  function markSelfWrite() {
+    selfWriting = true
+    setTimeout(() => { selfWriting = false }, 2000)
+  }
+
+  const watchDirs = ['skills', 'agents', 'scheduled-tasks'].map(d => path.join(claudeDir, d))
+  const watchFiles = ['settings.json', 'launch.json'].map(f => path.join(claudeDir, f))
+
+  for (const dir of watchDirs) {
+    if (fs.existsSync(dir)) {
+      try {
+        fs.watch(dir, { recursive: true }, (_eventType, filename) => {
+          if (selfWriting || !filename) return
+          if (fsDebounceTimer) clearTimeout(fsDebounceTimer)
+          fsDebounceTimer = setTimeout(() => {
+            console.log(`  📂 File change detected: ${dir}/${filename}`)
+            ecosystemCache = null
+            notifyClients('refresh', {
+              timestamp: new Date().toISOString(),
+              source: 'file-watcher',
+              file: filename,
+            })
+          }, 500)
+        })
+      } catch {
+        // fs.watch may not be supported on all platforms
+      }
+    }
+  }
+
+  for (const file of watchFiles) {
+    if (fs.existsSync(file)) {
+      try {
+        fs.watch(file, (_eventType) => {
+          if (selfWriting) return
+          if (fsDebounceTimer) clearTimeout(fsDebounceTimer)
+          fsDebounceTimer = setTimeout(() => {
+            console.log(`  📂 File change detected: ${file}`)
+            ecosystemCache = null
+            notifyClients('refresh', {
+              timestamp: new Date().toISOString(),
+              source: 'file-watcher',
+              file: path.basename(file),
+            })
+          }, 500)
+        })
+      } catch {}
+    }
+  }
+
+  console.log(`  👁️  Watching ${watchDirs.length} directories + ${watchFiles.length} config files for changes`)
+
   // ── Health ───────────────────────────────────────────────
   app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', claudeDir, version: '1.0.0' })
+    res.json({ status: 'ok', claudeDir, environment: activeEnv, version: '1.0.0' })
+  })
+
+  // ── Environment ──────────────────────────────────────────
+  app.get('/api/environment', (_req, res) => {
+    res.json({
+      active: activeEnv,
+      sandboxExists: sandboxExists(claudeDir),
+    })
+  })
+
+  app.post('/api/environment/switch', (req, res) => {
+    try {
+      const { env } = req.body as { env: 'prod' | 'test' }
+      if (env !== 'prod' && env !== 'test') {
+        res.status(400).json({ error: 'Invalid env. Use "prod" or "test".' })
+        return
+      }
+
+      if (env === 'test' && !sandboxExists(claudeDir)) {
+        initSandbox(claudeDir)
+      }
+
+      activeEnv = env
+      ecosystemCache = null
+      notifyClients('env-changed', { env: activeEnv, timestamp: new Date().toISOString() })
+      res.json({ active: activeEnv, sandboxExists: sandboxExists(claudeDir) })
+    } catch (err) {
+      res.status(500).json({ error: (err as Error).message })
+    }
+  })
+
+  app.post('/api/environment/reset', (_req, res) => {
+    try {
+      resetSandbox(claudeDir)
+      ecosystemCache = null
+      notifyClients('env-changed', { env: activeEnv, action: 'reset', timestamp: new Date().toISOString() })
+      res.json({ success: true, active: activeEnv })
+    } catch (err) {
+      res.status(500).json({ error: (err as Error).message })
+    }
+  })
+
+  app.post('/api/environment/promote', async (req, res) => {
+    try {
+      markSelfWrite()
+      const result = await promoteSandbox(claudeDir)
+      activeEnv = 'prod'
+      ecosystemCache = null
+      notifyClients('env-changed', { env: 'prod', action: 'promoted', timestamp: new Date().toISOString() })
+      res.json({ ...result, active: activeEnv })
+    } catch (err) {
+      res.status(500).json({ error: (err as Error).message })
+    }
   })
 
   // ── Ecosystem (read) ────────────────────────────────────
   app.get('/api/ecosystem', (_req, res) => {
     try {
       if (!ecosystemCache) {
-        ecosystemCache = scanEcosystem(claudeDir)
+        ecosystemCache = scanEcosystem(getActiveDir())
       }
       res.json(ecosystemCache)
     } catch (err) {
@@ -65,7 +182,7 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
 
   app.get('/api/ecosystem/refresh', (_req, res) => {
     try {
-      ecosystemCache = scanEcosystem(claudeDir)
+      ecosystemCache = scanEcosystem(getActiveDir())
       notifyClients('refresh', { timestamp: new Date().toISOString() })
       res.json(ecosystemCache)
     } catch (err) {
@@ -76,9 +193,10 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
   // ── Nodes (CRUD) ────────────────────────────────────────
   app.put('/api/nodes/:id', async (req, res) => {
     try {
+      markSelfWrite()
       const nodeId = decodeURIComponent(req.params.id)
-      const result = await updateSkillFile(claudeDir, nodeId, req.body)
-      ecosystemCache = null // Invalidate cache
+      const result = await updateSkillFile(getActiveDir(), nodeId, req.body)
+      ecosystemCache = null
       if (result.success) notifyClients('node-updated', { nodeId })
       res.json(result)
     } catch (err) {
@@ -88,7 +206,8 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
 
   app.post('/api/nodes', async (req, res) => {
     try {
-      const result = await createEntity(claudeDir, req.body)
+      markSelfWrite()
+      const result = await createEntity(getActiveDir(), req.body)
       ecosystemCache = null
       if (result.success) notifyClients('node-created', { entity: req.body })
       res.json(result)
@@ -104,8 +223,9 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
         res.status(400).json({ error: 'Missing X-Confirm-Delete header' })
         return
       }
+      markSelfWrite()
       const nodeId = decodeURIComponent(req.params.id)
-      const result = await deleteEntity(claudeDir, nodeId)
+      const result = await deleteEntity(getActiveDir(), nodeId)
       ecosystemCache = null
       if (result.success) notifyClients('node-deleted', { nodeId })
       res.json(result)
@@ -117,7 +237,7 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
   // ── Backups ─────────────────────────────────────────────
   app.get('/api/backups', (_req, res) => {
     try {
-      res.json(listBackups(claudeDir))
+      res.json(listBackups(getActiveDir()))
     } catch (err) {
       res.status(500).json({ error: (err as Error).message })
     }
@@ -125,7 +245,8 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
 
   app.post('/api/backups/:id/restore', async (req, res) => {
     try {
-      const result = await restoreBackup(claudeDir, req.params.id)
+      markSelfWrite()
+      const result = await restoreBackup(getActiveDir(), req.params.id)
       ecosystemCache = null
       notifyClients('restored', { backupId: req.params.id })
       res.json(result)
@@ -134,23 +255,24 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
     }
   })
 
-  // ── Save ecosystem state (graph positions + edges) ──────
+  // ── Save ecosystem state ────────────────────────────────
   app.post('/api/ecosystem/save', async (req, res) => {
     try {
+      markSelfWrite()
       const { nodes, edges, entities } = req.body
+      const dir = getActiveDir()
       const results = []
 
-      // Write entity changes to files
       if (entities && Array.isArray(entities)) {
         for (const entity of entities) {
           if (entity.action === 'create') {
-            const r = await createEntity(claudeDir, entity)
+            const r = await createEntity(dir, entity)
             results.push(r)
           } else if (entity.action === 'update') {
-            const r = await updateSkillFile(claudeDir, entity.id, entity)
+            const r = await updateSkillFile(dir, entity.id, entity)
             results.push(r)
           } else if (entity.action === 'delete') {
-            const r = await deleteEntity(claudeDir, entity.id)
+            const r = await deleteEntity(dir, entity.id)
             results.push(r)
           }
         }
@@ -191,6 +313,7 @@ export function startServer(options: ServerOptions): Promise<ReturnType<typeof e
       console.log(`\n  ✦ Claude Ecosystem Manager`)
       console.log(`  ├─ Server:  http://localhost:${port}`)
       console.log(`  ├─ Claude:  ${claudeDir}`)
+      console.log(`  ├─ Env:     ${activeEnv}`)
       console.log(`  └─ API:     http://localhost:${port}/api/health\n`)
       resolve(server)
     })

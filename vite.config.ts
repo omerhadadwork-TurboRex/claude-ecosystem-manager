@@ -9,7 +9,14 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:3847',
+      '/api/events': {
+        target: 'http://localhost:3847',
+        // SSE requires no response buffering
+        headers: { 'Cache-Control': 'no-transform' },
+      },
+      '/api': {
+        target: 'http://localhost:3847',
+      },
     },
   },
 })

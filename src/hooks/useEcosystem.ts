@@ -105,7 +105,7 @@ export function useEcosystem() {
     if (!isLive) return
 
     const unsubscribe = subscribeToEvents(async (event) => {
-      if (event === 'refresh' || event === 'node-updated' || event === 'node-created' || event === 'node-deleted' || event === 'saved' || event === 'restored') {
+      if (event === 'refresh' || event === 'node-updated' || event === 'node-created' || event === 'node-deleted' || event === 'saved' || event === 'restored' || event === 'env-changed') {
         try {
           const data = await fetchEcosystem()
           applyDataRef.current(data)

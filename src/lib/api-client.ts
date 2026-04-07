@@ -108,11 +108,57 @@ export async function restoreBackup(backupId: string) {
   return res.json()
 }
 
+// ── Environment ──────────────────────────────────────────
+
+export type EnvType = 'prod' | 'test'
+
+export interface EnvState {
+  active: EnvType
+  sandboxExists: boolean
+}
+
+export async function fetchEnvironment(): Promise<EnvState> {
+  const res = await fetch(`${API_BASE}/api/environment`)
+  if (!res.ok) throw new Error(`Failed to fetch environment`)
+  return res.json()
+}
+
+export async function switchEnvironment(env: EnvType): Promise<EnvState> {
+  const res = await fetch(`${API_BASE}/api/environment/switch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ env }),
+  })
+  if (!res.ok) throw new Error(`Failed to switch environment`)
+  return res.json()
+}
+
+export async function resetTestEnvironment(): Promise<{ success: boolean }> {
+  const res = await fetch(`${API_BASE}/api/environment/reset`, {
+    method: 'POST',
+  })
+  if (!res.ok) throw new Error(`Failed to reset sandbox`)
+  return res.json()
+}
+
+export async function promoteToProduction(): Promise<{
+  success: boolean
+  backupId: string
+  promotedFiles: string[]
+}> {
+  const res = await fetch(`${API_BASE}/api/environment/promote`, {
+    method: 'POST',
+  })
+  if (!res.ok) throw new Error(`Failed to promote`)
+  return res.json()
+}
+
 // ── Health ────────────────────────────────────────────────
 
 export async function checkHealth(): Promise<{
   status: string
   claudeDir: string
+  environment: EnvType
   version: string
 }> {
   const res = await fetch(`${API_BASE}/api/health`)
@@ -144,6 +190,9 @@ export function subscribeToEvents(
   })
   source.addEventListener('restored', (e) => {
     onEvent('restored', JSON.parse(e.data))
+  })
+  source.addEventListener('env-changed', (e) => {
+    onEvent('env-changed', JSON.parse(e.data))
   })
 
   return () => source.close()
