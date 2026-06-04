@@ -40,6 +40,29 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
+## View on your phone (Vercel)
+
+You can deploy the UI to [Vercel](https://vercel.com) to open it from your phone (or any browser) at a shareable URL.
+
+> **Note:** The Express backend reads your local `~/.claude/` folder, so it can't run on Vercel (serverless has no access to your machine). The deployed version runs in **read-only offline mode** using the bundled snapshot in `src/data/ecosystem-data.json`. To update what your phone sees, run `npm run extract` locally to refresh that snapshot, then push.
+
+**Deploy in two ways:**
+
+*Option A — Vercel dashboard (easiest):*
+1. Push this repo to GitHub (already done on your branch).
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repo.
+3. Vercel auto-detects the settings from `vercel.json` (build `vite build`, output `dist/client`). Click **Deploy**.
+4. Open the generated `https://<project>.vercel.app` URL on your phone.
+
+*Option B — Vercel CLI:*
+```bash
+npm i -g vercel
+vercel        # first run links/creates the project
+vercel --prod # deploy to production
+```
+
+The `vercel.json` in this repo configures the static build and SPA routing, and `index.html` is already mobile-responsive.
+
 ## How it works
 
 ### Architecture
