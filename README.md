@@ -63,6 +63,20 @@ vercel --prod # deploy to production
 
 The `vercel.json` in this repo configures the static build and SPA routing, and `index.html` is already mobile-responsive.
 
+### Alternative: GitHub Pages (no Vercel account needed)
+
+This repo ships a GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) that builds the UI and publishes it to GitHub Pages automatically.
+
+**One-time setup:** In GitHub → **Settings → Pages → Build and deployment → Source**, choose **GitHub Actions**.
+
+After that, every push to `master` builds and deploys the site to:
+
+```
+https://<your-username>.github.io/<repo-name>/
+```
+
+Open that URL on your phone. Like the Vercel deploy, it runs in read-only offline mode from the bundled snapshot.
+
 ## How it works
 
 ### Architecture
